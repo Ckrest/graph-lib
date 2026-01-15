@@ -1,0 +1,7 @@
+{
+  "name": "graph-lib",
+  "description": "Embeddable GTK4 graph widgets for time series and gauges with pluggable data providers.",
+  "topics": ["python", "gtk4", "graphs", "visualization", "widgets", "cairo"],
+  "private": false,
+  "homepage": ""
+}
