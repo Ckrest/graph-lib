@@ -7,7 +7,7 @@ Renderers handle drawing graphs to a Cairo context.
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
-from providers.base import DataPoint
+from ..providers.base import DataPoint
 
 
 class GraphRenderer(ABC):

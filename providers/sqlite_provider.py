@@ -143,38 +143,3 @@ class SQLiteProvider(DataProvider):
                 continue  # Skip bad rows
 
         return points
-
-
-# Convenience factory for ping-monitor
-def create_ping_provider(
-    db_path: Union[str, Path] = None,
-    host: Optional[str] = None,
-    metric: str = "avg_ms",
-    hours: int = 24,
-) -> SQLiteProvider:
-    """
-    Create a provider for ping-monitor data.
-
-    Args:
-        db_path: Path to ping-monitor database (auto-detected if None)
-        host: Filter by specific host (None for all hosts)
-        metric: Which metric to graph: 'avg_ms', 'min_ms', 'max_ms', 'packet_loss_percent', 'jitter_ms'
-        hours: Hours of history to show
-
-    Returns:
-        Configured SQLiteProvider
-    """
-    if db_path is None:
-        # Try standard XDG location
-        db_path = Path("~/.local/share/ping-monitor/history.db").expanduser()
-
-    where = f"host = '{host}'" if host else None
-
-    return SQLiteProvider(
-        db_path=db_path,
-        table="ping_results",
-        value_column=metric,
-        time_column="timestamp",
-        time_range_hours=hours,
-        where_clause=where,
-    )
