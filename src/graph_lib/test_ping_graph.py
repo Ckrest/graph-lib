@@ -4,18 +4,15 @@ Test graph-lib with real ping-monitor data.
 """
 
 import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
 
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw
 
-from widgets.graph_widget import GraphWidget
-from renderers.line_chart import LineChartRenderer
-from providers.sqlite_provider import SQLiteProvider
+from graph_lib.widgets.graph_widget import GraphWidget
+from graph_lib.renderers.line_chart import LineChartRenderer
+from graph_lib.providers.sqlite_provider import SQLiteProvider
 
 
 class PingGraphWindow(Adw.ApplicationWindow):
@@ -49,8 +46,10 @@ class PingGraphWindow(Adw.ApplicationWindow):
         content.append(title)
 
         # Create ping-monitor provider
+        import os
+        _systems_root = os.environ.get("SYSTEMS_ROOT", os.path.expanduser("~/Systems"))
         provider = SQLiteProvider(
-            db_path="/home/nick/Systems/tools/ping-monitor/history.db",
+            db_path=os.path.join(_systems_root, "tools", "ping-monitor", "history.db"),
             table="ping_results",
             value_column="avg_ms",
             time_column="timestamp",

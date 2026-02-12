@@ -4,10 +4,13 @@ Theme integration for graph styling.
 Extracts colors from the current GTK/Adwaita theme.
 """
 
+import logging
 import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk
+
+logger = logging.getLogger(__name__)
 
 
 def rgba_to_tuple(rgba: Gdk.RGBA) -> tuple:
@@ -46,8 +49,8 @@ def get_theme_colors() -> dict:
                     colors["text_dim"] = (0.7, 0.7, 0.7, 1.0)
                     colors["background"] = (0.12, 0.12, 0.12, 1.0)
                     colors["surface"] = (0.18, 0.18, 0.18, 1.0)
-    except Exception:
-        pass  # Use defaults
+    except Exception as exc:
+        logger.debug("Failed to read GTK theme colors: %s", exc)
 
     return colors
 

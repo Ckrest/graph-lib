@@ -5,6 +5,7 @@ Combines a renderer with a data provider into an embeddable widget.
 Provides methods for runtime configuration and control.
 """
 
+import logging
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -13,6 +14,8 @@ from gi.repository import Gtk, GLib
 from ..providers.base import DataProvider
 from ..renderers.base import GraphRenderer
 from typing import Callable, Optional, Any
+
+logger = logging.getLogger(__name__)
 
 
 class GraphWidget(Gtk.DrawingArea):
@@ -263,6 +266,7 @@ class GraphWidget(Gtk.DrawingArea):
                 self._on_data_hook(data)
 
         except Exception as e:
+            logger.exception("Graph refresh failed: %s", e)
             if self._on_error_hook:
                 self._on_error_hook(e)
 

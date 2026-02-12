@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graph-lib"
+description = "Embeddable GTK4 graph widgets for time series and gauges"
+version = "0.1.0"
+requires-python = ">=3.11"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Ckrest"},
+]
+dependencies = [
+    "PyGObject>=3.42",
+]
+
+[project.urls]
+Repository = "https://github.com/Ckrest/graph-lib"

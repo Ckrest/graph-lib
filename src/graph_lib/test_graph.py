@@ -5,21 +5,15 @@ Test script for graph-lib.
 Run this to see line chart and gauge in a GTK4 window.
 """
 
-import sys
-from pathlib import Path
-
-# Add graph-lib to path
-sys.path.insert(0, str(Path(__file__).parent))
-
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw, GLib
 
-from widgets.graph_widget import GraphWidget
-from renderers.line_chart import LineChartRenderer
-from renderers.gauge import GaugeRenderer
-from providers.static_provider import StaticProvider
+from graph_lib.widgets.graph_widget import GraphWidget
+from graph_lib.renderers.line_chart import LineChartRenderer
+from graph_lib.renderers.gauge import GaugeRenderer
+from graph_lib.providers.static_provider import StaticProvider
 
 
 class TestWindow(Adw.ApplicationWindow):
@@ -88,7 +82,7 @@ class TestWindow(Adw.ApplicationWindow):
         gauge1_label.set_margin_top(8)
         gauge1_box.append(gauge1_label)
 
-        from providers.base import DataPoint
+        from graph_lib.providers.base import DataPoint
         gauge1_provider = StaticProvider(data=[DataPoint(timestamp=0, value=45)])
         gauge1_renderer = GaugeRenderer()
         gauge1_renderer.configure(label="CPU")

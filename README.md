@@ -15,7 +15,7 @@ Embeddable GTK4 graph widgets for time series visualization and gauges. Features
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+pip install .
 ```
 
 Requires GTK4 and PyGObject. On Ubuntu/Debian:

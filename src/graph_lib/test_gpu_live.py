@@ -5,21 +5,16 @@ Live GPU monitoring test.
 Shows real-time GPU memory and utilization with fast refresh.
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
-
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw, GLib
 
-from widgets.graph_widget import GraphWidget
-from renderers.line_chart import LineChartRenderer
-from renderers.gauge import GaugeRenderer
-from providers.gpu_provider import GPUProvider, get_gpu_info
-from providers.base import DataPoint
+from graph_lib.widgets.graph_widget import GraphWidget
+from graph_lib.renderers.line_chart import LineChartRenderer
+from graph_lib.renderers.gauge import GaugeRenderer
+from graph_lib.providers.gpu_provider import GPUProvider, get_gpu_info
+from graph_lib.providers.base import DataPoint
 
 
 class GPUMonitorWindow(Adw.ApplicationWindow):
