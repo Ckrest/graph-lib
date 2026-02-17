@@ -46,10 +46,10 @@ class PingGraphWindow(Adw.ApplicationWindow):
         content.append(title)
 
         # Create ping-monitor provider
-        import os
-        _systems_root = os.environ.get("SYSTEMS_ROOT", os.path.expanduser("~/Systems"))
+        from systems import get_package_path
+        _ping_monitor = get_package_path("ping-monitor")
         provider = SQLiteProvider(
-            db_path=os.path.join(_systems_root, "tools", "ping-monitor", "history.db"),
+            db_path=str(_ping_monitor / "history.db"),
             table="ping_results",
             value_column="avg_ms",
             time_column="timestamp",
