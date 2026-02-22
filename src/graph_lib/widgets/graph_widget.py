@@ -10,6 +10,10 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib
+try:
+    import cairo
+except Exception:  # pragma: no cover - draw context still works without direct import
+    cairo = None
 
 from ..providers.base import DataProvider
 from ..renderers.base import GraphRenderer
@@ -38,12 +42,14 @@ class GraphWidget(Gtk.DrawingArea):
         renderer: GraphRenderer,
         provider: DataProvider,
         refresh_interval_ms: int = 1000,
+        clear_before_draw: bool = False,
     ):
         super().__init__()
 
         self.renderer = renderer
         self.provider = provider
         self.refresh_interval_ms = refresh_interval_ms
+        self._clear_before_draw = bool(clear_before_draw)
         self._timer_id = None
         self._started = False
 
@@ -151,6 +157,11 @@ class GraphWidget(Gtk.DrawingArea):
             if ms > 0:
                 self._timer_id = GLib.timeout_add(ms, self._on_timer)
 
+    def set_clear_before_draw(self, enabled: bool):
+        """Control whether the drawing area is transparently cleared before each frame."""
+        self._clear_before_draw = bool(enabled)
+        self.queue_draw()
+
     def set_provider(self, provider: DataProvider):
         """
         Swap data provider at runtime.
@@ -245,6 +256,12 @@ class GraphWidget(Gtk.DrawingArea):
 
     def _on_draw(self, area, cr, width, height):
         """Called when widget needs redrawing."""
+        if self._clear_before_draw and cairo is not None:
+            cr.save()
+            cr.set_operator(cairo.OPERATOR_CLEAR)
+            cr.paint()
+            cr.restore()
+            cr.set_operator(cairo.OPERATOR_OVER)
         self.renderer.render(cr, width, height)
 
     def _on_timer(self):
