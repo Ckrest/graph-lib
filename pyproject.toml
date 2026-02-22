@@ -16,5 +16,8 @@ dependencies = [
     "PyGObject>=3.42",
 ]
 
+[project.optional-dependencies]
+cairo = ["pycairo>=1.24"]
+
 [project.urls]
 Repository = "https://github.com/Ckrest/graph-lib"
