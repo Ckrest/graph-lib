@@ -4,6 +4,10 @@
 
 Embeddable GTK4 graph widgets for time series visualization and gauges. Features a pluggable architecture with separate providers (data sources) and renderers (visualization).
 
+## Preview
+
+![graph-lib showcase](screenshots/showcase.png)
+
 ## Features
 
 - **Line Charts** - Time series with fill, grid, axes, and labels
