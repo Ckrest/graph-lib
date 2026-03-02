@@ -30,6 +30,8 @@ class CommandProvider(DataProvider):
     Maintains a rolling history buffer and supports real-time polling.
     """
 
+    supports_push_updates = True
+
     def __init__(
         self,
         command: str,
@@ -100,7 +102,7 @@ class CommandProvider(DataProvider):
                 now = time.time()
                 point = DataPoint(timestamp=now, value=value)
                 self._history.append(point)
-                self._notify([point])
+                self._notify(list(self._history))
 
             time.sleep(interval)
 

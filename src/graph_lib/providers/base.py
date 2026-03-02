@@ -21,6 +21,8 @@ class DataPoint:
 class DataProvider(ABC):
     """Base class for data providers."""
 
+    supports_push_updates: bool = False
+
     def __init__(self):
         self._callback: Optional[Callable[[List[DataPoint]], None]] = None
 

@@ -151,11 +151,9 @@ class GraphWidget(Gtk.DrawingArea):
         """Change refresh interval. Takes effect on next timer cycle."""
         self.refresh_interval_ms = ms
 
-        # Restart timer if running
-        if self._started and self._timer_id:
-            GLib.source_remove(self._timer_id)
-            if ms > 0:
-                self._timer_id = GLib.timeout_add(ms, self._on_timer)
+        # Restart timer if running with the current provider.
+        if self._started:
+            self._restart_timer()
 
     def set_clear_before_draw(self, enabled: bool):
         """Control whether the drawing area is transparently cleared before each frame."""
@@ -173,13 +171,15 @@ class GraphWidget(Gtk.DrawingArea):
         if was_started:
             self.provider.stop()
             self.provider.unsubscribe()
+            self._stop_timer()
 
         self.provider = provider
 
         if was_started:
             self.provider.subscribe(self._on_data_update)
-            self.provider.start()
             self._refresh()
+            self.provider.start()
+            self._restart_timer()
 
     def refresh(self):
         """Manually trigger a data refresh and redraw."""
@@ -210,16 +210,12 @@ class GraphWidget(Gtk.DrawingArea):
 
         # Subscribe to real-time updates
         self.provider.subscribe(self._on_data_update)
-        self.provider.start()
 
         # Initial fetch
         self._refresh()
 
-        # Start periodic refresh
-        if self.refresh_interval_ms > 0:
-            self._timer_id = GLib.timeout_add(
-                self.refresh_interval_ms, self._on_timer
-            )
+        self.provider.start()
+        self._restart_timer()
 
     def stop(self):
         """Stop auto-refresh and provider."""
@@ -228,9 +224,7 @@ class GraphWidget(Gtk.DrawingArea):
 
         self._started = False
 
-        if self._timer_id:
-            GLib.source_remove(self._timer_id)
-            self._timer_id = None
+        self._stop_timer()
 
         self.provider.stop()
         self.provider.unsubscribe()
@@ -264,6 +258,24 @@ class GraphWidget(Gtk.DrawingArea):
             cr.set_operator(cairo.OPERATOR_OVER)
         self.renderer.render(cr, width, height)
 
+    def _provider_supports_push(self) -> bool:
+        return bool(getattr(self.provider, "supports_push_updates", False))
+
+    def _should_use_poll_timer(self) -> bool:
+        return self.refresh_interval_ms > 0 and not self._provider_supports_push()
+
+    def _stop_timer(self):
+        if self._timer_id:
+            GLib.source_remove(self._timer_id)
+            self._timer_id = None
+
+    def _restart_timer(self):
+        self._stop_timer()
+        if self._started and self._should_use_poll_timer():
+            self._timer_id = GLib.timeout_add(
+                self.refresh_interval_ms, self._on_timer
+            )
+
     def _on_timer(self):
         """Periodic refresh callback."""
         if not self._started:
@@ -276,21 +288,19 @@ class GraphWidget(Gtk.DrawingArea):
         """Fetch data and redraw."""
         try:
             data = self.provider.fetch()
-            self.renderer.set_data(data)
-            self.queue_draw()
-
-            if self._on_data_hook:
-                self._on_data_hook(data)
+            self._apply_data_update(data)
 
         except Exception as e:
             logger.exception("Graph refresh failed: %s", e)
             if self._on_error_hook:
                 self._on_error_hook(e)
 
+    def _apply_data_update(self, data):
+        self.renderer.set_data(data)
+        self.queue_draw()
+        if self._on_data_hook:
+            self._on_data_hook(data)
+
     def _on_data_update(self, data):
         """Real-time update callback from provider."""
-        self.renderer.set_data(data)
-        GLib.idle_add(self.queue_draw)
-
-        if self._on_data_hook:
-            GLib.idle_add(self._on_data_hook, data)
+        GLib.idle_add(self._apply_data_update, list(data))
